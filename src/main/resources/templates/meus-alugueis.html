@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Meus Alugueis')}"></head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<main class="container py-4">
+    <div class="page-header">
+        <h1>Meus Alugueis</h1>
+        <p class="subtitle">Acompanhe suas locacoes</p>
+    </div>
+    <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+    <div th:if="${#lists.isEmpty(locacoes)}" class="empty-state">
+        <p class="mb-2">Voce ainda nao fez nenhuma locacao.</p>
+        <a href="/explorar" class="btn btn-success">Explorar Maquinas</a>
+    </div>
+
+    <div th:unless="${#lists.isEmpty(locacoes)}" class="d-flex flex-column gap-3">
+        <div class="locacao-card" th:each="loc : ${locacoes}">
+            <div class="locacao-header d-flex align-items-center gap-3">
+                <div class="flex-grow-1">
+                    <strong class="d-block" th:text="${loc.maquinaNome}">Maquina</strong>
+                    <small class="text-muted" th:text="${#temporals.format(loc.dataInicio, 'dd/MM/yyyy')} + ' ate ' + ${#temporals.format(loc.dataFim, 'dd/MM/yyyy')}">datas</small>
+                </div>
+                <span class="badge-status" th:classappend="${#strings.toLowerCase(loc.status)}" th:text="${loc.status}">STATUS</span>
+            </div>
+            <div class="locacao-body">
+                <div class="row g-2">
+                    <div class="col-4">
+                        <small class="text-muted text-uppercase d-block" style="font-size:0.7rem;">Valor Total</small>
+                        <span class="fw-medium">R$ <span th:text="${#numbers.formatDecimal(loc.valorTotal,0,2)}">0</span></span>
+                    </div>
+                    <div class="col-4">
+                        <small class="text-muted text-uppercase d-block" style="font-size:0.7rem;">Diaria</small>
+                        <span class="fw-medium">R$ <span th:text="${#numbers.formatDecimal(loc.valorDiaria,0,2)}">0</span>/dia</span>
+                    </div>
+                    <div class="col-4">
+                        <small class="text-muted text-uppercase d-block" style="font-size:0.7rem;">Caucao</small>
+                        <span class="fw-medium">R$ <span th:text="${#numbers.formatDecimal(loc.valorCaucao,0,2)}">0</span></span>
+                    </div>
+                </div>
+            </div>
+            <div class="locacao-actions" th:if="${loc.status == 'PENDENTE'}">
+                <form method="post" th:action="@{/locacoes/{id}/cancelar(id=${loc.id})}" onsubmit="event.preventDefault(); confirmAction('Cancelar Aluguel', 'Confirma o cancelamento desta solicitacao?', function(){ showToast('Solicitacao cancelada.', 'info'); this.submit(); }.bind(this));">
+                    <button type="submit" class="btn btn-outline-danger btn-sm">Cancelar Solicitacao</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

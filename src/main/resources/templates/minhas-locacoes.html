@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Minhas Locacoes')}"></head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<main class="container py-4">
+    <div class="page-header">
+        <h1>Minhas Locacoes</h1>
+        <p class="subtitle">Gerencie as solicitacoes de aluguel das suas maquinas</p>
+    </div>
+    <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+    <div th:if="${#lists.isEmpty(locacoes)}" class="empty-state">
+        <p class="mb-0">Nenhuma locacao encontrada.</p>
+    </div>
+
+    <div th:unless="${#lists.isEmpty(locacoes)}" class="d-flex flex-column gap-3">
+        <div class="locacao-card" th:each="loc : ${locacoes}">
+            <div class="locacao-header d-flex align-items-center gap-3">
+                <div class="flex-grow-1">
+                    <strong class="d-block" th:text="${loc.maquinaNome}">Maquina</strong>
+                    <small class="text-muted d-block">Cliente: <span th:text="${loc.clienteNome}">Nome</span></small>
+                    <small class="text-muted" th:text="${#temporals.format(loc.dataInicio, 'dd/MM')} + ' a ' + ${#temporals.format(loc.dataFim, 'dd/MM/yyyy')}">datas</small>
+                </div>
+                <span class="badge-status" th:classappend="${#strings.toLowerCase(loc.status)}" th:text="${loc.status}">STATUS</span>
+            </div>
+            <div class="locacao-body">
+                <div class="row g-2">
+                    <div class="col-4">
+                        <small class="text-muted text-uppercase d-block" style="font-size:0.7rem;">Valor Total</small>
+                        <span class="fw-medium">R$ <span th:text="${#numbers.formatDecimal(loc.valorTotal,0,2)}">0</span></span>
+                    </div>
+                    <div class="col-4">
+                        <small class="text-muted text-uppercase d-block" style="font-size:0.7rem;">Diaria</small>
+                        <span class="fw-medium">R$ <span th:text="${#numbers.formatDecimal(loc.valorDiaria,0,2)}">0</span></span>
+                    </div>
+                    <div class="col-4">
+                        <small class="text-muted text-uppercase d-block" style="font-size:0.7rem;">Caucao</small>
+                        <span class="fw-medium">R$ <span th:text="${#numbers.formatDecimal(loc.valorCaucao,0,2)}">0</span></span>
+                    </div>
+                    <div class="col-12" th:if="${loc.observacoes}">
+                        <small class="text-muted text-uppercase d-block" style="font-size:0.7rem;">Observacoes</small>
+                        <span class="fw-medium" th:text="${loc.observacoes}">obs</span>
+                    </div>
+                </div>
+            </div>
+            <div class="locacao-actions d-flex gap-2">
+                <form method="post" th:action="@{/locacoes/{id}/aprovar(id=${loc.id})}" th:if="${loc.status == 'PENDENTE'}" onsubmit="event.preventDefault(); confirmAction('Aprovar Locacao', 'Confirma a aprovacao da locacao de ' + (this.closest('.locacao-card').querySelector('strong')?.textContent || '') + '?', function(){ showToast('Locacao aprovada com sucesso!', 'success'); setTimeout(function(){ document.querySelector(\"form[action*=\\'/locacoes/" + this.closest('form').querySelector('input')?.value + "/aprovar\\']\")?.submit(); }.bind(this), 100); }.bind(this));">
+                    <button type="submit" class="btn btn-success btn-sm">Aprovar</button>
+                </form>
+                <form method="post" th:action="@{/locacoes/{id}/cancelar(id=${loc.id})}" th:if="${loc.status == 'PENDENTE'}" onsubmit="event.preventDefault(); confirmAction('Recusar Locacao', 'Confirma a recusa desta locacao?', function(){ showToast('Locacao recusada.', 'error'); this.submit(); }.bind(this));">
+                    <button type="submit" class="btn btn-outline-danger btn-sm">Recusar</button>
+                </form>
+                <form method="post" th:action="@{/locacoes/{id}/concluir(id=${loc.id})}" th:if="${loc.status == 'ATIVA' or loc.status == 'ATRASADA'}" onsubmit="event.preventDefault(); confirmAction('Concluir Locacao', 'Confirma a conclusao desta locacao?', function(){ showToast('Locacao concluida!', 'success'); this.submit(); }.bind(this));">
+                    <button type="submit" class="btn btn-success btn-sm">Concluir</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>
