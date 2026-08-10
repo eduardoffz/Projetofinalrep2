@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Anunciar Maquina')}"></head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<main class="container py-4">
+    <div class="page-header">
+        <h1>Anunciar Maquina</h1>
+        <p class="subtitle">Cadastre sua maquina para alugar para outros agricultores</p>
+    </div>
+    <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+    <div class="form-card">
+        <form method="post" action="/anunciar">
+            <h6 class="section-title">Informacoes da Maquina</h6>
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label class="form-label small fw-medium" for="nome">Nome da Maquina</label>
+                    <input type="text" class="form-control form-control-sm" name="nome" id="nome" placeholder="Ex: Trator Alpha" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label small fw-medium" for="tipo">Tipo</label>
+                    <select class="form-select form-select-sm" name="tipo" id="tipo" required>
+                        <option value="">Selecione...</option>
+                        <option th:each="t : ${tipos}" th:value="${t}" th:text="${t}"></option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label small fw-medium" for="fabricante">Fabricante</label>
+                    <input type="text" class="form-control form-control-sm" name="fabricante" id="fabricante" placeholder="Ex: JohnDeere" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label small fw-medium" for="modelo">Modelo</label>
+                    <input type="text" class="form-control form-control-sm" name="modelo" id="modelo" placeholder="Ex: TLX-3000" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-medium" for="anoFabricacao">Ano de Fabricacao</label>
+                    <input type="number" class="form-control form-control-sm" name="anoFabricacao" id="anoFabricacao" placeholder="Ex: 2022">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-medium" for="horasUsoTotais">Horas de Uso</label>
+                    <input type="number" class="form-control form-control-sm" name="horasUsoTotais" id="horasUsoTotais" step="0.1" placeholder="Ex: 1250">
+                </div>
+            </div>
+
+            <h6 class="section-title">Precos e Localizacao</h6>
+            <div class="row g-3 mb-3">
+                <div class="col-md-4">
+                    <label class="form-label small fw-medium" for="precoDiaria">Preco da Diaria (R$)</label>
+                    <input type="number" class="form-control form-control-sm" name="precoDiaria" id="precoDiaria" step="0.01" placeholder="Ex: 450.00" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-medium" for="caucao">Caucao (R$)</label>
+                    <input type="number" class="form-control form-control-sm" name="caucao" id="caucao" step="0.01" placeholder="Ex: 2000.00">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-medium" for="localizacao">Localizacao</label>
+                    <input type="text" class="form-control form-control-sm" name="localizacao" id="localizacao" placeholder="Cidade / Estado">
+                </div>
+            </div>
+
+            <h6 class="section-title">Descricao</h6>
+            <div class="mb-3">
+                <label class="form-label small fw-medium" for="descricao">Descreva sua maquina</label>
+                <textarea class="form-control form-control-sm" name="descricao" id="descricao" rows="4" placeholder="Conte sobre o estado da maquina, equipamentos inclusos, diferenciais..."></textarea>
+            </div>
+
+            <div class="d-flex gap-2 pt-3 border-top">
+                <button type="submit" class="btn btn-success">Anunciar Maquina</button>
+                <a href="/" class="btn btn-outline-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</main>
+</body>
+</html>

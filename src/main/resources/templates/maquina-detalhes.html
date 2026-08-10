@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head(maquina.nome)}"></head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<main class="container py-4">
+    <a href="/explorar" class="btn btn-outline-secondary btn-sm mb-3">&larr; Voltar</a>
+    <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+    <div class="row g-4">
+        <!-- Coluna principal -->
+        <div class="col-lg-8">
+            <!-- Hero -->
+            <div class="machine-hero mb-3">
+                <div class="machine-hero-icon">
+                    <span th:text="${maquina.tipo.charAt(0)}">T</span>
+                </div>
+                <div class="flex-grow-1">
+                    <h4 class="fw-bold mb-1" th:text="${maquina.nome}">Nome</h4>
+                    <div class="d-flex flex-wrap gap-1 mb-2">
+                        <span class="spec-tag" th:text="${maquina.tipo}">Tipo</span>
+                        <span class="spec-tag" th:text="${maquina.fabricante}">Fabricante</span>
+                        <span class="spec-tag" th:text="${maquina.modelo}">Modelo</span>
+                        <span class="spec-tag" th:text="${maquina.anoFabricacao}">Ano</span>
+                    </div>
+                    <span class="badge-status disponivel" th:if="${maquina.disponivel}">Disponivel para locacao</span>
+                    <span class="badge-status indisponivel" th:unless="${maquina.disponivel}">Indisponivel</span>
+                </div>
+            </div>
+
+            <!-- Descricao -->
+            <div class="card card-agri mb-3">
+                <div class="card-body">
+                    <h5 class="section-title">Descricao</h5>
+                    <p class="text-muted mb-0" th:text="${maquina.descricao ?: 'Sem descricao disponivel.'}">desc</p>
+                </div>
+            </div>
+
+            <!-- Especificacoes -->
+            <div class="card card-agri mb-3">
+                <div class="card-body">
+                    <h5 class="section-title">Especificacoes</h5>
+                    <div class="row g-3">
+                        <div class="col-6 col-md-4">
+                            <small class="text-muted text-uppercase d-block" style="font-size:0.7rem;letter-spacing:0.3px;">Fabricante</small>
+                            <span class="fw-medium" th:text="${maquina.fabricante}">-</span>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <small class="text-muted text-uppercase d-block" style="font-size:0.7rem;letter-spacing:0.3px;">Modelo</small>
+                            <span class="fw-medium" th:text="${maquina.modelo}">-</span>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <small class="text-muted text-uppercase d-block" style="font-size:0.7rem;letter-spacing:0.3px;">Ano</small>
+                            <span class="fw-medium" th:text="${maquina.anoFabricacao}">-</span>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <small class="text-muted text-uppercase d-block" style="font-size:0.7rem;letter-spacing:0.3px;">Tipo</small>
+                            <span class="fw-medium" th:text="${maquina.tipo}">-</span>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <small class="text-muted text-uppercase d-block" style="font-size:0.7rem;letter-spacing:0.3px;">Horas de Uso</small>
+                            <span class="fw-medium" th:text="${#numbers.formatDecimal(maquina.horasUsoTotais,0,1)} + 'h'">0</span>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <small class="text-muted text-uppercase d-block" style="font-size:0.7rem;letter-spacing:0.3px;">Localizacao</small>
+                            <span class="fw-medium" th:text="${maquina.localizacao ?: '-'}">-</span>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <small class="text-muted text-uppercase d-block" style="font-size:0.7rem;letter-spacing:0.3px;">Proprietario</small>
+                            <span class="fw-medium" th:text="${maquina.proprietarioNome ?: '-'}">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Telemetria -->
+            <div class="card card-agri">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="section-title mb-0">Historico de Telemetria & Manutencao Preditiva</h5>
+                        <button type="button" class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#modalTelemetria"
+                                th:if="${session.usuarioRole == 'PROPRIETARIO' or session.usuarioRole == 'ADMIN'}">
+                            + Nova Leitura
+                        </button>
+                    </div>
+
+                    <div th:if="${#lists.isEmpty(telemetrias)}" class="text-muted small">Nenhum registro de telemetria cadastrado para esta maquina.</div>
+
+                    <div class="table-responsive" th:unless="${#lists.isEmpty(telemetrias)}">
+                        <table class="table table-sm table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Data/Hora</th>
+                                    <th>Horas Uso</th>
+                                    <th>Temp. Motor</th>
+                                    <th>Consumo</th>
+                                    <th>RPM</th>
+                                    <th>Pressao Oleo</th>
+                                    <th>Status Preditivo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="tel : ${telemetrias}">
+                                    <td th:text="${#temporals.format(tel.dataRegistro,'dd/MM/yyyy HH:mm')}">data</td>
+                                    <td th:text="${#numbers.formatDecimal(tel.horasUso,0,1)} + ' h'">0</td>
+                                    <td th:text="${#numbers.formatDecimal(tel.temperaturaMotor,0,1)} + ' °C'">0</td>
+                                    <td th:text="${#numbers.formatDecimal(tel.consumoCombustivel,0,1)} + ' L/h'">0</td>
+                                    <td th:text="${#numbers.formatDecimal(tel.rpmMotor,0,0)}">0</td>
+                                    <td th:text="${#numbers.formatDecimal(tel.pressaoOleo,0,1)} + ' bar'">0</td>
+                                    <td>
+                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle"
+                                              th:if="${tel.temperaturaMotor > 100 or tel.pressaoOleo < 1.5}">
+                                            Alerta Crítico
+                                        </span>
+                                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle"
+                                              th:if="${tel.temperaturaMotor > 90 and tel.temperaturaMotor <= 100 and tel.pressaoOleo >= 1.5}">
+                                            Atenção - Temp. Alta
+                                        </span>
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle"
+                                              th:if="${tel.temperaturaMotor <= 90 and tel.pressaoOleo >= 1.5}">
+                                            Normal
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal para Registrar Nova Telemetria -->
+            <div class="modal fade" id="modalTelemetria" tabindex="-1" aria-labelledby="modalTelemetriaLabel" aria-hidden="true"
+                 th:if="${session.usuarioRole == 'PROPRIETARIO' or session.usuarioRole == 'ADMIN'}">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form method="post" th:action="@{'/maquinas/' + ${maquina.id} + '/telemetria'}">
+                            <div class="modal-header">
+                                <h5 class="modal-title fw-bold" id="modalTelemetriaLabel">Registrar Telemetria de Leitura</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label class="form-label small" for="horasUso">Horas de Uso Acumuladas</label>
+                                    <input type="number" step="0.1" class="form-control form-control-sm" name="horasUso" id="horasUso" th:value="${maquina.horasUsoTotais}" required>
+                                </div>
+                                <div class="row g-2 mb-3">
+                                    <div class="col-6">
+                                        <label class="form-label small" for="temperaturaMotor">Temperatura (°C)</label>
+                                        <input type="number" step="0.1" class="form-control form-control-sm" name="temperaturaMotor" id="temperaturaMotor" placeholder="85.0" required>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label small" for="consumoCombustivel">Consumo (L/h)</label>
+                                        <input type="number" step="0.1" class="form-control form-control-sm" name="consumoCombustivel" id="consumoCombustivel" placeholder="12.5" required>
+                                    </div>
+                                </div>
+                                <div class="row g-2 mb-3">
+                                    <div class="col-6">
+                                        <label class="form-label small" for="rpmMotor">RPM do Motor</label>
+                                        <input type="number" step="1" class="form-control form-control-sm" name="rpmMotor" id="rpmMotor" placeholder="2100" required>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label small" for="pressaoOleo">Pressão do Óleo (bar)</label>
+                                        <input type="number" step="0.1" class="form-control form-control-sm" name="pressaoOleo" id="pressaoOleo" placeholder="3.5" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-success btn-sm">Salvar Leitura</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar - precos e locacao -->
+        <div class="col-lg-4">
+            <div class="pricing-card sticky-top" style="top:80px;">
+                <h6 class="fw-bold text-muted text-uppercase small mb-2">Valor da Locacao</h6>
+                <div class="mb-2">
+                    <span class="price">R$ <span th:text="${#numbers.formatDecimal(maquina.precoDiaria,0,2)}">0</span></span>
+                    <span class="price-unit">/dia</span>
+                </div>
+                <div class="d-flex justify-content-between small text-muted border-bottom pb-2 mb-3">
+                    <span>Caucao</span>
+                    <span>R$ <span th:text="${#numbers.formatDecimal(maquina.caucao,0,2)}">0</span></span>
+                </div>
+
+                <!-- Formulario de locacao -->
+                <form method="post" action="/locacoes/nova" th:if="${maquina.disponivel and (session.usuarioRole == 'CLIENTE' or session.usuarioRole == 'ADMIN')}">
+                    <input type="hidden" name="maquinaId" th:value="${maquina.id}">
+                    <div class="mb-2">
+                        <label class="form-label small" for="dataInicio">Data de Inicio</label>
+                        <input type="date" class="form-control form-control-sm" name="dataInicio" id="dataInicio"
+                               th:attr="min=${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}" required onchange="calcularTotal()">
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small" for="dataFim">Data de Fim</label>
+                        <input type="date" class="form-control form-control-sm" name="dataFim" id="dataFim"
+                               th:attr="min=${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}" required onchange="calcularTotal()">
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small">Servicos Adicionais</label>
+                        <div th:each="s : ${servicos}" class="form-check">
+                            <input type="checkbox" class="form-check-input" name="servicoIds" th:value="${s.id}" th:id="'serv-' + ${s.id}" onchange="calcularTotal()">
+                            <label class="form-check-label small" th:for="'serv-' + ${s.id}">
+                                <span th:text="${s.nome}">Servico</span>
+                                <span class="text-success fw-medium">(+R$<span th:text="${#numbers.formatDecimal(s.preco,0,2)}">0</span>)</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small" for="observacoes">Observacoes</label>
+                        <textarea class="form-control form-control-sm" name="observacoes" id="observacoes" rows="2" placeholder="Alguma observacao?"></textarea>
+                    </div>
+                    <div class="rental-total-box mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="small fw-medium">Valor Estimado</span>
+                            <span class="fw-bold text-success fs-5" id="valorEstimado">R$ 0,00</span>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">Solicitar Locacao</button>
+                </form>
+
+                <div th:if="${!maquina.disponivel}" class="alert alert-danger mb-0 small mt-2">
+                    Esta maquina esta indisponivel no momento.
+                </div>
+                <div th:if="${maquina.disponivel and session.usuarioRole == 'PROPRIETARIO'}" class="alert alert-info mb-0 small mt-2">
+                    Para alugar, utilize uma conta de cliente.
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

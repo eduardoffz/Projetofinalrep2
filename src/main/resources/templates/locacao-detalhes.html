@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Detalhes Locacao')}"></head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<main class="container py-4">
+    <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm mb-3">&larr; Voltar</a>
+    <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card card-agri">
+                <div class="card-body">
+                    <h4 class="fw-bold mb-3" th:text="${locacao.maquinaNome}">Maquina</h4>
+                    <div class="row g-3">
+                        <div class="col-6 col-md-3">
+                            <small class="text-muted text-uppercase d-block" style="font-size:0.7rem;letter-spacing:0.3px;">Status</small>
+                            <span class="badge-status" th:classappend="${#strings.toLowerCase(locacao.status)}" th:text="${locacao.status}">STATUS</span>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <small class="text-muted text-uppercase d-block" style="font-size:0.7rem;letter-spacing:0.3px;">Cliente</small>
+                            <span class="fw-medium" th:text="${locacao.clienteNome}">Nome</span>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <small class="text-muted text-uppercase d-block" style="font-size:0.7rem;letter-spacing:0.3px;">Periodo</small>
+                            <span class="fw-medium" th:text="${#temporals.format(locacao.dataInicio, 'dd/MM/yyyy')} + ' a ' + ${#temporals.format(locacao.dataFim, 'dd/MM/yyyy')}">datas</span>
+                        </div>
+                        <div class="col-6 col-md-3" th:if="${locacao.dataDevolucao}">
+                            <small class="text-muted text-uppercase d-block" style="font-size:0.7rem;letter-spacing:0.3px;">Devolucao</small>
+                            <span class="fw-medium" th:text="${#temporals.format(locacao.dataDevolucao, 'dd/MM/yyyy')}">data</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Telemetria da Locacao -->
+            <div class="card card-agri mt-4">
+                <div class="card-body">
+                    <h5 class="section-title">Telemetria do Período de Locação</h5>
+                    <div th:if="${#lists.isEmpty(telemetrias)}" class="text-muted small">Nenhum registro de telemetria associado a este contrato de aluguel.</div>
+                    <div class="table-responsive" th:unless="${#lists.isEmpty(telemetrias)}">
+                        <table class="table table-sm table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Data/Hora</th>
+                                    <th>Horas Uso</th>
+                                    <th>Temp. Motor</th>
+                                    <th>Consumo</th>
+                                    <th>RPM</th>
+                                    <th>Pressão</th>
+                                    <th>Status Preditivo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="tel : ${telemetrias}">
+                                    <td th:text="${#temporals.format(tel.dataRegistro,'dd/MM/yyyy HH:mm')}">data</td>
+                                    <td th:text="${#numbers.formatDecimal(tel.horasUso,0,1)} + ' h'">0</td>
+                                    <td th:text="${#numbers.formatDecimal(tel.temperaturaMotor,0,1)} + ' °C'">0</td>
+                                    <td th:text="${#numbers.formatDecimal(tel.consumoCombustivel,0,1)} + ' L/h'">0</td>
+                                    <td th:text="${#numbers.formatDecimal(tel.rpmMotor,0,0)}">0</td>
+                                    <td th:text="${#numbers.formatDecimal(tel.pressaoOleo,0,1)} + ' bar'">0</td>
+                                    <td>
+                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle"
+                                              th:if="${tel.temperaturaMotor > 100 or tel.pressaoOleo < 1.5}">
+                                            Alerta Crítico
+                                        </span>
+                                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle"
+                                              th:if="${tel.temperaturaMotor > 90 and tel.temperaturaMotor <= 100 and tel.pressaoOleo >= 1.5}">
+                                            Atenção - Temp. Alta
+                                        </span>
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle"
+                                              th:if="${tel.temperaturaMotor <= 90 and tel.pressaoOleo >= 1.5}">
+                                            Normal
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card card-agri">
+                <div class="card-body">
+                    <h6 class="section-title">Resumo Financeiro</h6>
+                    <div class="d-flex justify-content-between small mb-1">
+                        <span class="text-muted">Diaria</span>
+                        <span>R$ <span th:text="${#numbers.formatDecimal(locacao.valorDiaria,0,2)}">0</span></span>
+                    </div>
+                    <div class="d-flex justify-content-between small mb-1">
+                        <span class="text-muted">Caucao</span>
+                        <span>R$ <span th:text="${#numbers.formatDecimal(locacao.valorCaucao,0,2)}">0</span></span>
+                    </div>
+                    <hr class="my-2">
+                    <div class="d-flex justify-content-between fw-bold">
+                        <span>Total</span>
+                        <span class="text-success">R$ <span th:text="${#numbers.formatDecimal(locacao.valorTotal,0,2)}">0</span></span>
+                    </div>
+
+                    <div th:if="${not #lists.isEmpty(servicos)}" class="mt-3 pt-3 border-top">
+                        <h6 class="small fw-bold text-muted text-uppercase mb-2">Servicos Contratados</h6>
+                        <div th:each="s : ${servicos}" class="d-flex justify-content-between small mb-1">
+                            <span th:text="${s.servicoNome}">Servico</span>
+                            <span>R$ <span th:text="${#numbers.formatDecimal(s.precoCobrado,0,2)}">0</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>
