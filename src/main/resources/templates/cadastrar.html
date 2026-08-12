@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Cadastro')}"></head>
+<body>
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <div class="auth-brand">
+            <div class="brand-name">AgriRent</div>
+            <div class="brand-sub">Criar sua Conta</div>
+        </div>
+
+        <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+        <form method="post" action="/cadastrar">
+            <div class="mb-3">
+                <label class="form-label" for="nome">Nome Completo</label>
+                <input type="text" class="form-control" name="nome" id="nome" placeholder="Seu nome" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="email">Email</label>
+                <input type="email" class="form-control" name="email" id="email" placeholder="seu@email.com" required>
+            </div>
+            <div class="row g-2 mb-3">
+                <div class="col-md-6">
+                    <label class="form-label" for="telefone">Telefone</label>
+                    <input type="text" class="form-control" name="telefone" id="telefone" placeholder="(11) 99999-8888">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="role">Tipo de Conta</label>
+                    <select class="form-select" name="role" id="role" onchange="toggleProprietarioFields()" required>
+                        <option value="CLIENTE">Cliente - Quero alugar</option>
+                        <option value="PROPRIETARIO">Proprietario - Quero anunciar</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="senha">Senha</label>
+                <input type="password" class="form-control" name="senha" id="senha"
+                       placeholder="Minimo 6 caracteres" required oninput="validarSenha()">
+                <p id="feedbackSenha"></p>
+            </div>
+
+            <div id="proprietario-fields" style="display:none">
+                <h6>Dados do Proprietario</h6>
+                <div class="mb-3">
+                    <label class="form-label" for="documento">CPF/CNPJ</label>
+                    <input type="text" class="form-control" name="documento" id="documento" placeholder="000.000.000-00">
+                </div>
+                <div class="row g-2 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label" for="chavePix">Chave PIX</label>
+                        <input type="text" class="form-control" name="chavePix" id="chavePix" placeholder="Email, CPF ou telefone">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="endereco">Endereco da Propriedade</label>
+                        <input type="text" class="form-control" name="endereco" id="endereco" placeholder="Fazenda, Cidade - UF">
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-auth">Criar Conta</button>
+        </form>
+
+        <div class="auth-divider"><span>ou</span></div>
+
+        <p class="auth-link">Ja tem conta? <a href="/login">Fazer login</a></p>
+    </div>
+</div>
+</body>
+</html>
