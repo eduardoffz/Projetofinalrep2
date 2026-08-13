@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Dashboard')}"></head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<main class="container py-4"
+      data-chart-pendente="${chartPendente}"
+      data-chart-ativa="${chartAtiva}"
+      data-chart-concluida="${chartConcluida}"
+      data-chart-cancelada="${chartCancelada}"
+      data-chart-trator="${chartTrator}"
+      data-chart-colheitadeira="${chartColheitadeira}"
+      data-chart-pulverizador="${chartPulverizador}"
+      data-chart-outros="${chartOutros}">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <div class="dashboard-greeting">
+                <span id="saudacaoDinamica">Ola,</span>
+                <span th:text="${session.usuarioNome}">Usuario</span>
+            </div>
+            <small class="text-muted">Plataforma de aluguel de maquinas agricolas</small>
+        </div>
+    </div>
+    <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+    <!-- Stats - CLIENTE -->
+    <div class="row g-3 mb-4" th:if="${session.usuarioRole == 'CLIENTE'}">
+        <div class="col-6 col-md-4">
+            <div class="stat-card-modern">
+                <div class="stat-accent" style="background:linear-gradient(135deg,#1a6b3c,#22a34e);">M</div>
+                <div class="stat-value text-success" th:text="${totalMaquinas}">0</div>
+                <div class="stat-label">Maquinas Disponiveis</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4">
+            <div class="stat-card-modern">
+                <div class="stat-accent" style="background:linear-gradient(135deg,#d97706,#f59e0b);">L</div>
+                <div class="stat-value text-warning-emphasis" th:text="${locacoesAtivas}">0</div>
+                <div class="stat-label">Locacoes Ativas</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4">
+            <div class="stat-card-modern">
+                <div class="stat-accent" style="background:linear-gradient(135deg,#7c3aed,#8b5cf6);">A</div>
+                <div class="stat-value text-purple-emphasis" th:text="${meusAlugueis}">0</div>
+                <div class="stat-label">Meus Alugueis</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats - PROPRIETARIO -->
+    <div class="row g-3 mb-4" th:if="${session.usuarioRole == 'PROPRIETARIO'}">
+        <div class="col-6 col-md-3">
+            <div class="stat-card-modern">
+                <div class="stat-accent" style="background:linear-gradient(135deg,#1a6b3c,#22a34e);">M</div>
+                <div class="stat-value text-success" th:text="${minhasMaquinas != null ? minhasMaquinas : 0}">0</div>
+                <div class="stat-label">Minhas Maquinas</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card-modern">
+                <div class="stat-accent" style="background:linear-gradient(135deg,#d97706,#f59e0b);">L</div>
+                <div class="stat-value text-warning-emphasis" th:text="${locacoesAtivas}">0</div>
+                <div class="stat-label">Locacoes Ativas</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card-modern">
+                <div class="stat-accent" style="background:linear-gradient(135deg,#2563eb,#3b82f6);">S</div>
+                <div class="stat-value text-primary-emphasis" th:text="${minhasLocacoes != null ? minhasLocacoes : 0}">0</div>
+                <div class="stat-label">Solicitacoes Recebidas</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card-modern">
+                <div class="stat-accent" style="background:linear-gradient(135deg,#059669,#10b981);">R$</div>
+                <div class="stat-value text-success">R$ <span th:text="${faturamentoTotal != null ? #numbers.formatDecimal(faturamentoTotal,0,2) : '0,00'}">0,00</span></div>
+                <div class="stat-label">Faturamento Acumulado</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats - ADMIN -->
+    <div class="row g-3 mb-4" th:if="${session.usuarioRole == 'ADMIN'}">
+        <div class="col-6 col-md-3">
+            <div class="stat-card-modern">
+                <div class="stat-accent" style="background:linear-gradient(135deg,#1a6b3c,#22a34e);">M</div>
+                <div class="stat-value text-success" th:text="${totalMaquinas}">0</div>
+                <div class="stat-label">Maquinas Disponiveis</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card-modern">
+                <div class="stat-accent" style="background:linear-gradient(135deg,#d97706,#f59e0b);">L</div>
+                <div class="stat-value text-warning-emphasis" th:text="${locacoesAtivas}">0</div>
+                <div class="stat-label">Locacoes Ativas</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card-modern">
+                <div class="stat-accent" style="background:linear-gradient(135deg,#2563eb,#3b82f6);">P</div>
+                <div class="stat-value text-primary-emphasis" th:text="${totalProprietarios}">0</div>
+                <div class="stat-label">Proprietarios</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card-modern">
+                <div class="stat-accent" style="background:linear-gradient(135deg,#7c3aed,#8b5cf6);">C</div>
+                <div class="stat-value text-purple-emphasis" th:text="${totalClientes}">0</div>
+                <div class="stat-label">Clientes</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Simulador + Graficos -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-5">
+            <div class="simulador-card h-100">
+                <div class="sim-header">
+                    <h5>Simulador de Diaria</h5>
+                    <span class="sim-badge">Calculadora</span>
+                </div>
+                <p class="text-muted small mb-3">Calcule o valor estimado de uma locacao.</p>
+                <div class="row g-2 align-items-end">
+                    <div class="col-6">
+                        <label class="form-label small fw-medium text-muted" for="simDias">Dias</label>
+                        <input type="number" class="form-control form-control-sm" id="simDias" placeholder="Ex: 5" min="1">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label small fw-medium text-muted" for="simPreco">Diaria (R$)</label>
+                        <input type="number" class="form-control form-control-sm" id="simPreco" placeholder="Ex: 450" step="0.01" min="0">
+                    </div>
+                    <div class="col-12">
+                        <button class="btn btn-success btn-sm w-100" onclick="calcularSimulacaoRapida()">Calcular</button>
+                    </div>
+                </div>
+                <div id="simBox" class="alert alert-success mt-3 mb-0 d-none">
+                    <span id="simResultado">O resultado aparecera aqui</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-7">
+            <div class="row g-3">
+                <div class="col-6">
+                    <div class="chart-card h-100">
+                        <h6 class="fw-semibold small text-muted text-uppercase mb-2">Locacoes por Status</h6>
+                        <canvas id="chartStatus"></canvas>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="chart-card h-100">
+                        <h6 class="fw-semibold small text-muted text-uppercase mb-2">Maquinas por Tipo</h6>
+                        <canvas id="chartTipo"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Atividades Recentes -->
+    <div class="section-header-bar">
+        <h5>Atividades Recentes</h5>
+        <a href="/explorar" class="btn btn-outline-success btn-sm">Explorar</a>
+    </div>
+    <div class="card card-agri mb-4" th:if="${not #lists.isEmpty(locacoesRecentes)}">
+        <div class="card-body">
+            <div class="timeline">
+                <div class="timeline-item" th:classappend="${#strings.toLowerCase(loc.status)}" th:each="loc : ${locacoesRecentes}">
+                    <div class="fw-semibold small" th:text="${loc.maquinaNome}">Maquina</div>
+                    <div class="text-muted" style="font-size:0.8rem;">
+                        <span th:text="${loc.status}">STATUS</span>
+                        <span th:if="${loc.clienteNome}"> &middot; <span th:text="${loc.clienteNome}">Cliente</span></span>
+                    </div>
+                    <div class="text-muted" style="font-size:0.72rem;" th:text="${#temporals.format(loc.createdAt, 'dd/MM/yyyy HH:mm')}">data</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Maquinas em Destaque -->
+    <div class="section-header-bar">
+        <h5>Maquinas em Destaque</h5>
+        <a href="/explorar" class="btn btn-outline-success btn-sm">Ver Todas</a>
+    </div>
+
+    <div th:if="${#lists.isEmpty(maquinasDestaque)}" class="empty-state">
+        <p class="mb-0">Nenhuma maquina disponivel no momento.</p>
+    </div>
+
+    <div class="row g-3 mb-4" th:unless="${#lists.isEmpty(maquinasDestaque)}">
+        <div class="col-md-6 col-lg-3" th:each="m : ${maquinasDestaque}">
+            <div class="machine-card-dash">
+                <div class="dash-img"><span th:text="${m.tipo}">TIPO</span></div>
+                <div class="dash-body d-flex flex-column">
+                    <div class="dash-title" th:text="${m.nome}">Maquina</div>
+                    <div class="dash-meta mb-1"><span th:text="${m.fabricante + ' ' + m.modelo}">Fabricante</span></div>
+                    <div class="dash-meta mb-2" th:if="${m.localizacao}" th:text="${m.localizacao}">Local</div>
+                    <div class="mt-auto d-flex justify-content-between align-items-center">
+                        <span class="dash-price">R$<span th:text="${#numbers.formatDecimal(m.precoDiaria,0,2)}">0</span><small>/dia</small></span>
+                        <a th:href="@{/maquinas/{id}(id=${m.id})}" class="btn btn-success btn-sm">Alugar</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-modern" th:if="${session.usuarioRole == 'CLIENTE'}">
+        <h5>Precisa de uma maquina agricola?</h5>
+        <p class="mb-3">Encontre tratores, colheitadeiras e muito mais para alugar.</p>
+        <a href="/explorar" class="btn btn-success">Explorar Maquinas</a>
+    </div>
+    <div class="cta-modern" th:if="${session.usuarioRole == 'PROPRIETARIO'}">
+        <h5>Tem maquinas paradas?</h5>
+        <p class="mb-3">Anuncie e ganhe dinheiro com o aluguel das suas maquinas.</p>
+        <a href="/anunciar" class="btn btn-success">Anunciar Agora</a>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script>
+function calcularSimulacaoRapida() {
+    var dias = parseFloat(document.getElementById("simDias").value) || 0;
+    var preco = parseFloat(document.getElementById("simPreco").value) || 0;
+    var resultado = document.getElementById("simResultado");
+    var box = document.getElementById("simBox");
+    if (dias <= 0 || preco <= 0) {
+        resultado.textContent = "Preencha os dois campos acima.";
+        resultado.style.color = "#92400e";
+        box.classList.remove("d-none");
+        return;
+    }
+    var total = dias * preco;
+    resultado.textContent = "Total estimado: R$ " + total.toFixed(2).replace(".", ",");
+    resultado.style.color = "#166534";
+    box.classList.remove("d-none");
+}
+
+// Graficos
+document.addEventListener("DOMContentLoaded", function () {
+    var ctxStatus = document.getElementById("chartStatus");
+    var ctxTipo = document.getElementById("chartTipo");
+    var main = document.querySelector('main[data-chart-pendente]');
+    if (ctxStatus && main) {
+        new Chart(ctxStatus, {
+            type: 'doughnut',
+            data: {
+                labels: ['Pendente', 'Ativa', 'Concluida', 'Cancelada'],
+                datasets: [{
+                    data: [
+                        parseInt(main.getAttribute('data-chart-pendente') || 0),
+                        parseInt(main.getAttribute('data-chart-ativa') || 0),
+                        parseInt(main.getAttribute('data-chart-concluida') || 0),
+                        parseInt(main.getAttribute('data-chart-cancelada') || 0)
+                    ],
+                    backgroundColor: ['#f59e0b', '#16a34a', '#94a3b8', '#dc2626'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                cutout: '72%',
+                plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } },
+                maintainAspectRatio: true
+            }
+        });
+    }
+    if (ctxTipo && main) {
+        new Chart(ctxTipo, {
+            type: 'doughnut',
+            data: {
+                labels: ['Trator', 'Colheitadeira', 'Pulverizador', 'Outros'],
+                datasets: [{
+                    data: [
+                        parseInt(main.getAttribute('data-chart-trator') || 0),
+                        parseInt(main.getAttribute('data-chart-colheitadeira') || 0),
+                        parseInt(main.getAttribute('data-chart-pulverizador') || 0),
+                        parseInt(main.getAttribute('data-chart-outros') || 0)
+                    ],
+                    backgroundColor: ['#1a6b3c', '#2563eb', '#d97706', '#94a3b8'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                cutout: '72%',
+                plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } },
+                maintainAspectRatio: true
+            }
+        });
+    }
+});
+
+// Toast de boas-vindas
+setTimeout(function () {
+    var nome = document.querySelector(".dashboard-greeting span:last-child")?.textContent || "Usuario";
+    showToast("Bem-vindo(a), " + nome + "!", "info");
+}, 500);
+</script>
+</body>
+</html>

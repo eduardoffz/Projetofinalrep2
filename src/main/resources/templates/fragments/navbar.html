@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<nav th:fragment="navbar" class="navbar navbar-expand-md navbar-agri sticky-top">
+    <div class="container">
+        <a class="navbar-brand text-white" href="/">AgriRent</a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navMenu">
+            <ul class="navbar-nav me-auto mb-2 mb-md-0">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/explorar">Explorar</a>
+                </li>
+                <li class="nav-item" th:if="${session.usuarioRole == 'CLIENTE' or session.usuarioRole == 'ADMIN'}">
+                    <a class="nav-link" href="/meus-alugueis">Meus Alugueis</a>
+                </li>
+                <li class="nav-item" th:if="${session.usuarioRole == 'PROPRIETARIO' or session.usuarioRole == 'ADMIN'}">
+                    <a class="nav-link" href="/anunciar">Anunciar</a>
+                </li>
+                <li class="nav-item" th:if="${session.usuarioRole == 'PROPRIETARIO' or session.usuarioRole == 'ADMIN'}">
+                    <a class="nav-link" href="/minhas-locacoes">Locacoes</a>
+                </li>
+                <li class="nav-item" th:if="${session.usuarioRole == 'ADMIN'}">
+                    <a class="nav-link" href="/servicos">Servicos</a>
+                </li>
+            </ul>
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-sm btn-outline-light d-flex align-items-center justify-content-center" id="theme-toggle" title="Alternar Modo Escuro" style="width:32px;height:32px;border-radius:50%;padding:0;">
+                    🌓
+                </button>
+                <span class="user-name" th:text="${session.usuarioNome}">Nome</span>
+                <span class="role-badge" th:classappend="${#strings.toLowerCase(session.usuarioRole)}" th:text="${session.usuarioRole}">ROLE</span>
+                <a href="/logout" class="btn btn-outline-light btn-sm">Sair</a>
+            </div>
+        </div>
+    </div>
+</nav>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

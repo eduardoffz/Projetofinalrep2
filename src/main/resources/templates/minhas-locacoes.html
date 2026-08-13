@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Minhas Locacoes')}"></head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<main class="container py-4">
+    <div class="page-header">
+        <h1>Minhas Locacoes</h1>
+        <p class="subtitle">Gerencie as solicitacoes de aluguel das suas maquinas</p>
+    </div>
+    <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+    <div th:if="${#lists.isEmpty(locacoes)}" class="empty-state">
+        <p class="mb-0">Nenhuma locacao encontrada.</p>
+    </div>
+
+    <div th:unless="${#lists.isEmpty(locacoes)}" class="mb-3 d-flex flex-wrap gap-2">
+        <button type="button" class="btn btn-sm btn-dark filter-btn active" onclick="filtrarStatus('todos', this)">Todos</button>
+        <button type="button" class="btn btn-sm btn-outline-warning filter-btn" onclick="filtrarStatus('pendente', this)">⏳ Pendentes</button>
+        <button type="button" class="btn btn-sm btn-outline-success filter-btn" onclick="filtrarStatus('ativa', this)">✅ Ativas</button>
+        <button type="button" class="btn btn-sm btn-outline-primary filter-btn" onclick="filtrarStatus('concluida', this)">🎉 Concluídas</button>
+        <button type="button" class="btn btn-sm btn-outline-danger filter-btn" onclick="filtrarStatus('cancelada', this)">❌ Canceladas</button>
+    </div>
+
+    <div th:unless="${#lists.isEmpty(locacoes)}" class="d-flex flex-column gap-3">
+        <div class="locacao-card" th:each="loc : ${locacoes}" th:data-status="${#strings.toLowerCase(loc.status)}">
+            <div class="locacao-header d-flex align-items-center gap-3">
+                <div class="flex-grow-1">
+                    <strong class="d-block fs-5" th:text="${loc.maquinaNome}">Maquina</strong>
+                    <div class="d-flex align-items-center gap-2 my-1">
+                        <small class="text-muted">Cliente: <strong th:text="${loc.clienteNome}">Nome</strong></small>
+                        <a th:href="@{'/clientes/' + ${loc.clienteId}}" class="badge bg-info text-dark text-decoration-none" title="Ver Perfil do Cliente">👤 Perfil & Histórico</a>
+                    </div>
+                    <small class="text-muted" th:text="|${#temporals.format(loc.dataInicio, 'dd/MM/yyyy')} a ${#temporals.format(loc.dataFim, 'dd/MM/yyyy')}|">datas</small>
+                </div>
+                <span class="badge-status" th:classappend="${#strings.toLowerCase(loc.status)}" th:text="${loc.status}">STATUS</span>
+            </div>
+            <div class="locacao-body">
+                <div class="row g-2">
+                    <div class="col-4">
+                        <small class="text-muted text-uppercase d-block" style="font-size:0.7rem;">Valor Total</small>
+                        <span class="fw-medium">R$ <span th:text="${#numbers.formatDecimal(loc.valorTotal,0,2)}">0</span></span>
+                    </div>
+                    <div class="col-4">
+                        <small class="text-muted text-uppercase d-block" style="font-size:0.7rem;">Diaria</small>
+                        <span class="fw-medium">R$ <span th:text="${#numbers.formatDecimal(loc.valorDiaria,0,2)}">0</span></span>
+                    </div>
+                    <div class="col-4">
+                        <small class="text-muted text-uppercase d-block" style="font-size:0.7rem;">Caucao</small>
+                        <span class="fw-medium">R$ <span th:text="${#numbers.formatDecimal(loc.valorCaucao,0,2)}">0</span></span>
+                    </div>
+                    <div class="col-12" th:if="${loc.observacoes}">
+                        <small class="text-muted text-uppercase d-block" style="font-size:0.7rem;">Observacoes</small>
+                        <span class="fw-medium" th:text="${loc.observacoes}">obs</span>
+                    </div>
+                </div>
+
+                <!-- Bloco de Aviso e PIX (Proprietario) quando PENDENTE -->
+                <div th:if="${loc.status == 'PENDENTE'}" class="mt-3 p-3 rounded border border-warning bg-light">
+                    <div class="d-flex align-items-center gap-2 mb-2 text-warning-emphasis fw-bold">
+                        <span>⏳ Aguardando Pagamento via PIX do Cliente</span>
+                    </div>
+                    <p class="small text-secondary mb-2">
+                        O cliente deve realizar o pagamento de <strong>R$ <span th:text="${#numbers.formatDecimal(loc.valorTotal,0,2)}">0</span></strong> na sua Chave PIX cadastrada. Assim que identificar o recebimento, clique no botão <strong>Aprovar</strong> abaixo.
+                    </p>
+                    <div class="row g-2 align-items-center">
+                        <div class="col-md-6">
+                            <small class="text-muted d-block">Sua Chave PIX:</small>
+                            <span class="badge bg-secondary font-monospace fs-6" th:text="${loc.chavePixValida}">chave</span>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted d-block">Código PIX (Copia e Cola):</small>
+                            <div class="input-group input-group-sm">
+                                <input type="text" class="form-control font-monospace" th:id="'pixCodeProp_' + ${loc.id}" th:value="${loc.codigoPix}" readonly>
+                                <button class="btn btn-outline-secondary" type="button" th:onclick="'navigator.clipboard.writeText(document.getElementById(\'pixCodeProp_' + ${loc.id} + '\').value); alert(\'Código PIX copiado!\');'">Copiar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="locacao-actions d-flex gap-2 mt-3">
+                <a th:href="@{'/clientes/' + ${loc.clienteId}}" class="btn btn-outline-info btn-sm">👤 Perfil do Cliente</a>
+                <form method="post" th:action="@{/locacoes/{id}/aprovar(id=${loc.id})}" th:if="${loc.status == 'PENDENTE'}"
+                      onsubmit="return confirm('Confirma a aprovacao desta locacao?');">
+                    <button type="submit" class="btn btn-success btn-sm">Aprovar Locacao</button>
+                </form>
+                <form method="post" th:action="@{/locacoes/{id}/cancelar(id=${loc.id})}" th:if="${loc.status == 'PENDENTE'}"
+                      onsubmit="return confirm('Confirma a recusa desta locacao?');">
+                    <button type="submit" class="btn btn-outline-danger btn-sm">Recusar</button>
+                </form>
+                <form method="post" th:action="@{/locacoes/{id}/concluir(id=${loc.id})}" th:if="${loc.status == 'ATIVA' or loc.status == 'ATRASADA'}"
+                      onsubmit="return confirm('Confirma a conclusao desta locacao?');">
+                    <button type="submit" class="btn btn-success btn-sm">Concluir</button>
+                </form>
+            </div>
+        </div>
+</main>
+<script>
+function filtrarStatus(status, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('btn-dark'));
+    btn.classList.add('btn-dark');
+    document.querySelectorAll('.locacao-card').forEach(card => {
+        if (status === 'todos' || card.dataset.status === status) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+</script>
+</body>
+</html>
