@@ -6,7 +6,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 public class Conexao {
-    private static final String URL = "jdbc:mysql://localhost:3307/db_agrirent?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Sao_Paulo";
+    private static final String URL = "jdbc:mysql://localhost:3306/db_agrirent?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Sao_Paulo";
     private static final String USUARIO = "root";
     private static final String SENHA = "";
     private static HikariDataSource dataSource;

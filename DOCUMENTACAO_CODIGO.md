@@ -56,4 +56,4 @@ O sistema foi desenvolvido utilizando **Java 17** com a infraestrutura do **Spri
 ## 3. Banco de Dados e Conexão
 
 * **Script Inicial:** Localizado em `scripts/init-database.sql`, contendo os comandos `CREATE TABLE` e dados de teste.
-* **Conexão:** Gerenciada pela classe `Conexao.java` e configurada em `application.properties` apontando para a base MySQL local (`jdbc:mysql://localhost:3307/db_agrirent`).
+* **Conexão:** Gerenciada pela classe `Conexao.java` e configurada em `application.properties` apontando para a base MySQL local (`jdbc:mysql://localhost:3306/db_agrirent`).

@@ -55,12 +55,19 @@ Acesse: http://localhost:8080
 
 ## Credenciais de teste
 
-| Papel | Email | Senha |
-|-------|-------|-------|
-| ADMIN | admin@agrirent.com | admin123 |
-| PROPRIETARIO | joao@agrirent.com | prop123 |
-| PROPRIETARIO | maria@agrirent.com | prop123 |
-| CLIENTE | carlos@agrirent.com | cli123 |
+| Papel | Nome | Email | Senha |
+|-------|------|-------|-------|
+| ADMIN | Administrador Geral | admin@agrirent.com | admin123 |
+| PROPRIETARIO | João Silva (Boa Esperança) | joao@agrirent.com | prop123 |
+| PROPRIETARIO | Maria Fernandes (Recanto Verde) | maria@agrirent.com | prop123 |
+| PROPRIETARIO | Fernando Guimarães (Santa Rita) | fernando@agrirent.com | prop123 |
+| PROPRIETARIO | Agropecuária Silva | contato@silvaagro.com.br | prop123 |
+| PROPRIETARIO | Beatriz Alcantara (Guarani) | beatriz@fazendaguarani.com | prop123 |
+| CLIENTE | Carlos Cliente | carlos@agrirent.com | cli123 |
+| CLIENTE | Ana Paula Souza | ana.souza@gmail.com | cli123 |
+| CLIENTE | Roberto Mendes (AgroVale) | roberto.mendes@agrovale.com.br | cli123 |
+| CLIENTE | Juliana Lima (Sítio Horizonte) | juliana.lima@sitiohorizonte.com | cli123 |
+| CLIENTE | Marcos Oliveira (Fazenda Paraíso) | marcos.oliveira@fazendaparaiso.com | cli123 |
 
 ## API REST
 
